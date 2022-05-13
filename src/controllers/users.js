@@ -12,12 +12,32 @@ const postUser = async (req, res) => {
   }
 };
 
-// const editUser = async (req, res) => {
-//   const { address, img } = req.body;
-//   const uid = req.headers('uid');
-//   //const user = req.vali
-// };
+const editUser = async (req, res) => {
+  const { address, img, id } = req.body;
+  const { uid } = req.uid;
+  //const uid = req.header('uid');
+
+  if (id !== uid) {
+    return res.status(401).json({ msg: 'Unauthorized' });
+  }
+
+  try {
+    const user = await User.findByPk(uid);
+
+    //img debe pasar antes por un middleware de cloudinary
+
+    user.update({ img, address });
+
+    res.json({ msg: 'User has been updated successfully' });
+  } catch (error) {
+    res.status(404).json({ msg: 'Edit error' });
+  }
+};
+
+//const loginUser = () => {};
 
 module.exports = {
   postUser,
+  editUser,
+  //loginUser,
 };

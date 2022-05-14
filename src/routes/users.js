@@ -1,15 +1,12 @@
 const router = require('express').Router();
 const { check, body } = require('express-validator');
-const {
-  postUser,
-  editUser, //loginUser
-} = require('../controllers');
+const { postUser, editUser, loginUser } = require('../controllers');
 const { jwtGenerator } = require('../helpers');
 const { jwtValidator } = require('../middlewares');
 
 router.post('/', postUser);
 router.put('/edit', [jwtValidator], editUser);
-//router.post('/auth/login', [jwtGenerator], loginUser);
+router.post('/auth', loginUser);
 
 module.exports = router;
 

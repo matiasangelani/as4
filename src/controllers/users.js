@@ -1,10 +1,11 @@
 const bcryptjs = require('bcryptjs');
 const { User } = require('../db');
+const { jwtGenerator } = require('../helpers');
 
 const postUser = async (req, res) => {
   const { name, lastname, email, password } = req.body;
   let salt = '',
-    encrypPassword = '';
+    encryptPassword = '';
 
   try {
     const existUser = await User.findOne({
@@ -13,23 +14,20 @@ const postUser = async (req, res) => {
       },
     });
 
-    if (existUser) {
-      return res.json({ msg: `Email '${email}' already in use` });
-    }
+    if (existUser) return res.json({ msg: `Email '${email}' already in use` });
 
     salt = bcryptjs.genSaltSync();
-    encrypPassword = bcryptjs.hashSync(password, salt);
+    encryptPassword = bcryptjs.hashSync(password, salt);
 
     const user = await User.create({
       name,
       lastname,
       email,
-      password: encrypPassword,
+      password: encryptPassword,
     });
 
     res.json({ msg: 'User has been created successfully' });
   } catch (error) {
-    console.log('postUser error');
     res.json(error);
   }
 };
@@ -37,11 +35,8 @@ const postUser = async (req, res) => {
 const editUser = async (req, res) => {
   const { address, img, id } = req.body;
   const { uid } = req.uid;
-  //const uid = req.header('uid');
 
-  if (id !== uid) {
-    return res.status(401).json({ msg: 'Unauthorized' });
-  }
+  if (id !== uid) return res.status(401).json({ msg: 'Unauthorized' });
 
   try {
     const user = await User.findByPk(uid);
@@ -56,10 +51,34 @@ const editUser = async (req, res) => {
   }
 };
 
-//const loginUser = () => {};
+const loginUser = async (req, res) => {
+  const { email, password } = req.body;
+  let validPassword = '',
+    token = '';
+
+  try {
+    const user = await User.findOne({
+      where: {
+        email,
+      },
+    });
+
+    if (!user) return res.json({ msg: 'Incorrect email/password' });
+
+    validPassword = await bcryptjs.compare(password, user.password);
+
+    if (!validPassword) return res.json({ msg: 'Incorrect email/password' });
+
+    token = await jwtGenerator(user.id);
+
+    res.json({ token });
+  } catch (error) {
+    res.json(error);
+  }
+};
 
 module.exports = {
   postUser,
   editUser,
-  //loginUser,
+  loginUser,
 };

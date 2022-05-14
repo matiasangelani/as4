@@ -14,7 +14,7 @@ const postUser = async (req, res) => {
     });
 
     if (existUser) {
-      return res.json({ msg: `Existent email ${email}` });
+      return res.json({ msg: `Email '${email}' already in use` });
     }
 
     salt = bcryptjs.genSaltSync();
@@ -29,6 +29,7 @@ const postUser = async (req, res) => {
 
     res.json({ msg: 'User has been created successfully' });
   } catch (error) {
+    console.log('postUser error');
     res.json(error);
   }
 };

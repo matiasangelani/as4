@@ -5,12 +5,13 @@ const { jwtGenerator } = require('../helpers');
 const postUser = async (req, res) => {
   const { name, lastname, email, password } = req.body;
   let salt = '',
-    encryptPassword = '';
+    encryptPassword = '',
+    emailLowerCase = email.toLowerCase();
 
   try {
     const existUser = await User.findOne({
       where: {
-        email,
+        emailLowerCase,
       },
     });
 
@@ -22,7 +23,7 @@ const postUser = async (req, res) => {
     const user = await User.create({
       name,
       lastname,
-      email,
+      email: emailLowerCase,
       password: encryptPassword,
     });
 

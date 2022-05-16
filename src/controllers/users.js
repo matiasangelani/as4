@@ -4,32 +4,30 @@ const { User } = require('../db');
 const postUser = async (req, res) => {
   const { name, lastname, email, password } = req.body;
   let salt = '',
-    encrypPassword = '';
+    encryptPassword = '',
+    emailLowerCase = email.toLowerCase();
 
   try {
     const existUser = await User.findOne({
       where: {
-        email,
+        emailLowerCase,
       },
     });
 
-    if (existUser) {
-      return res.json({ msg: `Email '${email}' already in use` });
-    }
+    if (existUser) return res.json({ msg: `Email '${email}' already in use` });
 
     salt = bcryptjs.genSaltSync();
-    encrypPassword = bcryptjs.hashSync(password, salt);
+    encryptPassword = bcryptjs.hashSync(password, salt);
 
     const user = await User.create({
       name,
       lastname,
-      email,
-      password: encrypPassword,
+      email: emailLowerCase,
+      password: encryptPassword,
     });
 
     res.json({ msg: 'User has been created successfully' });
   } catch (error) {
-    console.log('postUser error');
     res.json(error);
   }
 };

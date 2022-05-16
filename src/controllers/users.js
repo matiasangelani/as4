@@ -35,7 +35,7 @@ const postUser = async (req, res) => {
 
 const editUser = async (req, res) => {
   const { address, img, id } = req.body;
-  const { uid } = req.uid;
+  const uid = req.uid;
 
   if (id !== uid) return res.status(401).json({ msg: 'Unauthorized' });
 

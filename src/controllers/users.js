@@ -11,7 +11,7 @@ const postUser = async (req, res) => {
   try {
     const existUser = await User.findOne({
       where: {
-        emailLowerCase,
+        email: emailLowerCase,
       },
     });
 

@@ -33,6 +33,32 @@ const postUser = async (req, res) => {
   }
 };
 
+const getUser = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const user = await User.findByPk(id);
+
+    if (!user) return res.json({ msg: 'User not found' });
+
+    res.json(user);
+  } catch (error) {
+    res.json({ msg: 'Get user error' });
+  }
+};
+
+const getAllUsers = async (req, res) => {
+  try {
+    const users = await User.findAll();
+
+    if (!users.length) return res.json({ msg: 'Users empty' });
+
+    res.json(users);
+  } catch (error) {
+    res.json({ msg: 'Get users error' });
+  }
+};
+
 const editUser = async (req, res) => {
   const { address, img, id } = req.body;
   const uid = req.uid;
@@ -82,4 +108,6 @@ module.exports = {
   postUser,
   editUser,
   loginUser,
+  getUser,
+  getAllUsers,
 };

@@ -2,7 +2,7 @@ const { Product, Image } = require('../db');
 const { Op } = require('sequelize');
 
 const postProduct = async (req, res) => {
-  const { barcode, name, description, price, img } = req.body;
+  const { barcode, name, description, price, images } = req.body;
 
   try {
     const [product, created] = await Product.findOrCreate({
@@ -17,7 +17,9 @@ const postProduct = async (req, res) => {
 
     if (!created) return res.json({ msg: 'Product already exists' });
 
-    await Image.create({ img, productId: product.id });
+    images.map(
+      async (img) => await Image.create({ img, productId: product.id })
+    );
 
     res.json({ msg: `Product '${name}' has been created successfully` });
   } catch (error) {
@@ -56,19 +58,34 @@ const editProduct = async (req, res) => {
   const { barcode, name, description, price, images } = req.body;
 
   try {
-    const product = await Product.findByPk(id);
-    console.log(product.toJSON());
-    if (!product) return res.json({ msg: 'Product not found' });
+    const oldProduct = await Product.findByPk(id);
 
-    await product.update({ barcode, name, description, price });
+    if (!oldProduct) return res.json({ msg: 'Product not found' });
 
-    //const imagesDb = await Image
+    await oldProduct.update({ barcode, name, description, price });
+
+    const imagesDb = await Image.findAll({
+      where: { productId: oldProduct.id },
+    });
+
+    await Promise.all(
+      imagesDb.map(async (img, i) => {
+        const { id } = img;
+        const newImg = images[i];
+        await Image.update({ img: newImg }, { where: { id } });
+
+        return img;
+      })
+    );
+
+    const product = await Product.findByPk(id, { include: [{ model: Image }] });
 
     res.json({
       msg: `Product '${product.name}' with barcode ${product.barcode} edited successfully`,
+      product,
     });
   } catch (error) {
-    res.json({ msg: 'Edit product error' });
+    res.json({ msg: 'Edit product error', error });
   }
 };
 

@@ -29,12 +29,17 @@ const postUser = async (req, res) => {
 
     res.json({ msg: 'User has been created successfully' });
   } catch (error) {
-    res.json(error);
+    res.status(404).json({ msg: 'Post user error' });
   }
 };
 
 const getUser = async (req, res) => {
   const { id } = req.params;
+  const { role } = req.body;
+  const uid = req.uid;
+
+  if (role === 'USER' && id !== uid)
+    return res.status(401).json({ msg: 'Unauthorized' });
 
   try {
     const user = await User.findByPk(id);
@@ -43,7 +48,7 @@ const getUser = async (req, res) => {
 
     res.json(user);
   } catch (error) {
-    res.json({ msg: 'Get user error' });
+    res.status(404).json({ msg: 'Get user error' });
   }
 };
 
@@ -55,7 +60,7 @@ const getAllUsers = async (req, res) => {
 
     res.json(users);
   } catch (error) {
-    res.json({ msg: 'Get users error' });
+    res.status(404).json({ msg: 'Get users error' });
   }
 };
 
@@ -100,7 +105,7 @@ const loginUser = async (req, res) => {
 
     res.json({ token });
   } catch (error) {
-    res.json(error);
+    res.status(404).json({ msg: 'Error' });
   }
 };
 
@@ -118,7 +123,7 @@ const deleteUser = async (req, res) => {
       msg: `User '${user.name}' deleted successfully`,
     });
   } catch (error) {
-    res.json({ msg: 'Delete user error' });
+    res.status(404).json({ msg: 'Delete user error' });
   }
 };
 
@@ -143,7 +148,7 @@ const postSuperAdmin = async (req, res) => {
     salt = bcryptjs.genSaltSync();
     encryptPassword = bcryptjs.hashSync(password, salt);
 
-    const user = await User.create({
+    await User.create({
       name,
       lastname,
       email: emailLowerCase,
@@ -153,7 +158,7 @@ const postSuperAdmin = async (req, res) => {
 
     res.json({ msg: 'Super Admin has been created successfully' });
   } catch (error) {
-    res.json(error);
+    res.status(404).json({ msg: 'Error' });
   }
 };
 
@@ -169,7 +174,7 @@ const editUserRole = async (req, res) => {
 
     res.json({ msg: `User '${user.name}' has been made Admin` });
   } catch (error) {
-    res.json(error);
+    res.status(404).json({ msg: 'Error' });
   }
 };
 

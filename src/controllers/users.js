@@ -122,6 +122,57 @@ const deleteUser = async (req, res) => {
   }
 };
 
+const postSuperAdmin = async (req, res) => {
+  const { name, lastname, email, password, superpass } = req.body;
+  let salt = '',
+    encryptPassword = '',
+    emailLowerCase = email.toLowerCase();
+
+  try {
+    if (superpass !== process.env.SUPERPASS || !superpass)
+      return res.status(401).json({ msg: 'Unauthorized' });
+
+    const existUser = await User.findOne({
+      where: {
+        email: emailLowerCase,
+      },
+    });
+
+    if (existUser) return res.json({ msg: `Email '${email}' already in use` });
+
+    salt = bcryptjs.genSaltSync();
+    encryptPassword = bcryptjs.hashSync(password, salt);
+
+    const user = await User.create({
+      name,
+      lastname,
+      email: emailLowerCase,
+      password: encryptPassword,
+      role: 'SUPER_ADMIN',
+    });
+
+    res.json({ msg: 'Super Admin has been created successfully' });
+  } catch (error) {
+    res.json(error);
+  }
+};
+
+const editUserRole = async (req, res) => {
+  const { id } = req.body;
+
+  try {
+    const user = await User.findByPk(id);
+
+    if (!user) return res.json({ msg: 'User not found' });
+
+    await user.update({ role: 'ADMIN' });
+
+    res.json({ msg: `User '${user.name}' has been made Admin` });
+  } catch (error) {
+    res.json(error);
+  }
+};
+
 module.exports = {
   postUser,
   editUser,
@@ -129,4 +180,6 @@ module.exports = {
   getUser,
   getAllUsers,
   deleteUser,
+  postSuperAdmin,
+  editUserRole,
 };

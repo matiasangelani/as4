@@ -6,12 +6,13 @@ const {
   editProduct,
   deleteProduct,
 } = require('../controllers');
+const { jwtValidator, adminValidator } = require('../middlewares');
 
 //Solo podrá ser hecho por ADMINS y SUPER ADMINS
-router.post('/', postProduct);
-router.get('/:id', getProduct);
-router.get('/', getAllProducts);
-router.put('/:id', editProduct);
-router.delete('/:id', deleteProduct);
+router.post('/', [jwtValidator, adminValidator], postProduct);
+router.get('/:id', [jwtValidator, adminValidator], getProduct);
+router.get('/', [jwtValidator, adminValidator], getAllProducts);
+router.put('/:id', [jwtValidator, adminValidator], editProduct);
+router.delete('/:id', [jwtValidator, adminValidator], deleteProduct);
 
 module.exports = router;

@@ -20,7 +20,14 @@ const {
 router.post('/', postUser);
 router.post('/auth', loginUser);
 router.post('/superadmin', postSuperAdmin);
-router.get('/:id', [jwtValidator, adminValidator], getUser);
+router.get(
+  '/:id',
+  [
+    jwtValidator,
+    //adminValidator
+  ],
+  getUser
+);
 router.get('/', [jwtValidator, adminValidator], getAllUsers);
 router.put('/', [jwtValidator], editUser);
 router.put('/edit', [jwtValidator, superAdminValidator], editUserRole);

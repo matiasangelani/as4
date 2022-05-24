@@ -104,10 +104,29 @@ const loginUser = async (req, res) => {
   }
 };
 
+const deleteUser = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const user = await User.findByPk(id);
+
+    if (!user) return res.json({ msg: 'User not found' });
+
+    await user.update({ active: false });
+
+    res.json({
+      msg: `User '${user.name}' deleted successfully`,
+    });
+  } catch (error) {
+    res.json({ msg: 'Delete user error' });
+  }
+};
+
 module.exports = {
   postUser,
   editUser,
   loginUser,
   getUser,
   getAllUsers,
+  deleteUser,
 };

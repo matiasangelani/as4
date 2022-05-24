@@ -6,6 +6,7 @@ const {
   loginUser,
   getAllUsers,
   getUser,
+  deleteUser,
 } = require('../controllers');
 const { jwtGenerator } = require('../helpers');
 const { jwtValidator } = require('../middlewares');
@@ -15,6 +16,7 @@ router.post('/auth', loginUser);
 router.get('/:id', getUser);
 router.get('/', getAllUsers);
 router.put('/edit', [jwtValidator], editUser);
+router.delete('/:id', deleteUser);
 
 module.exports = router;
 

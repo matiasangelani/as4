@@ -7,15 +7,23 @@ const {
   getAllUsers,
   getUser,
   deleteUser,
+  postSuperAdmin,
+  editUserRole,
 } = require('../controllers');
 const { jwtGenerator } = require('../helpers');
-const { jwtValidator } = require('../middlewares');
+const {
+  jwtValidator,
+  adminValidator,
+  superAdminValidator,
+} = require('../middlewares');
 
 router.post('/', postUser);
 router.post('/auth', loginUser);
-router.get('/:id', getUser);
-router.get('/', getAllUsers);
-router.put('/edit', [jwtValidator], editUser);
+router.post('/superadmin', postSuperAdmin);
+router.get('/:id', [jwtValidator, adminValidator], getUser);
+router.get('/', [jwtValidator, adminValidator], getAllUsers);
+router.put('/', [jwtValidator], editUser);
+router.put('/edit', [jwtValidator, superAdminValidator], editUserRole);
 router.delete('/:id', deleteUser);
 
 module.exports = router;
